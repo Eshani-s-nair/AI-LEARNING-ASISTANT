@@ -1,0 +1,12 @@
+flask
+flask-cors
+requests
+spacy
+PyPDF2
+pdf2image
+pytesseract
+psycopg2-binary
+python-docx
+nltk
+scikit-learn
+Pillow

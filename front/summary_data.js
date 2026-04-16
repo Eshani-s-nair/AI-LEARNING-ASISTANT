@@ -1,0 +1,20 @@
+const generatedSummaryData = {
+    "summary": [
+        "The three main types of sum of squares in linear regression are Total Sum of Squares (SST), Regression Sum of Squares (SSR), and Residual Sum of Squares (SSE).",
+        "Regression Sum of Squares (SSR)\n\nAlso known as the explained sum of squares (ESS), this measures the variability in the dependent variable that is explained by the regression model.",
+        "SST measures the total variation in the dependent variable, SSR measures the variation explained by the model, and SSE measures the variation that is not explained by the model."
+    ],
+    "keywords": [
+        "sum",
+        "squares",
+        "variation",
+        "regression",
+        "square",
+        "dependent",
+        "variable",
+        "explain",
+        "total",
+        "model"
+    ],
+    "refined_summary": "\n# Sum of Squares in Linear Regression: Definitions and Differences\n\nLinear regression analysis involves partitioning the total variability observed in a dataset into components attributable to different sources within the statistical model. The core measures used are Total Sum of Squares (SST), Regression Sum of Squares (SSR, also known as Explained Sum of Squares or ESS), and Residual Sum of Squares (SSE). Understanding these components is crucial in evaluating the goodness-of end model fit.\n\n## Total Sum of Squares (SST)\n**Keyword:** Total Variation  \nThe measure representing the overall variation present within a dataset for its dependent variable, typically denoted by Y. It serves as an anchor point to assess how much variability exists in our data without considering any model predictions or explanations. \n- **Formula:** \\( \\text{SST} = \\sum_{i=1}^{n}(y_i - \\bar{y})^2 \\)  \nWhere \\( y_i \\) represents the individual observed values, and \\( \\bar{y} \\) is their mean value.\n\n## Regression Sum of Squares (SSR) / Explained Sum of Squares (ESS)\n**Keyword:** Explanation Proportion  \nThe SSR quantifies how much variability in the dependent variable Y can be accounted for by our regression model. It measures the difference between observed values and their respective fitted values predicted through linear regression, signifying captured variation due to explanatory variables (predictors). \n- **Formula:** \\( \\text{SSR} = \\sum_{i=1}^{n}(fitted\\_yi - bar(y))^2 \\)  \nWhere \\( fitted\\_yi \\) represents the values predicted by our regression model for each observation, and \\( bar(y) \\) is their mean value. This can also be calculated as:\n\\[ SSR = SST - SSE \\] \n- **Formula** presented above aligns with this calculation methodology.  \nThe proportion of explained variation (also known as the coefficient of determination, R\u00b2), which tells us about how well our model explains data variability overall, is computed using: \\( \\text{R}^2 = SSR/SST \\)\n- **Bullet Points for Advantages**:  \n  - Directly reflects a portion of the dependent variable that can be explained by independent variables.  \n  - Useful metric to compare different models, where higher R\u00b2 indicates better explanatory power with respect to model variation in Y.\n\n## Residual Sum of Squares (SSE) / Unexplained Variation\n**Keyword:** Unaccounted for Variability  \nThis value represents the portion of variability not explained by the regression model and is a key component when assessing model accuracy. It captures errors or discrepancies between observed data points and predicted values generated from our linear regression equation. \n- **Formula:** \\( \\text{SSE} = \\sum_{i=1}^{n}(y_i - fitted\\_yi)^2 \\)  \nWhere again, each individual value difference is squared to remove negative contributions resulting in a non-negative SSE figure that should be as small as possible. \nThe residual sum of squares can also indicate the extent tos which randomness or inherent noise impact our observations: lower values suggest better model fit where most data points lie close to their predicted regression line, indicating little unexplained variation."
+};

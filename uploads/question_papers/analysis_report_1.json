@@ -1,0 +1,351 @@
+[
+    {
+        "topic": "space complexity",
+        "frequency": 2,
+        "importance_score": 3,
+        "questions": [
+            {
+                "text": "Calculate the space complexity of given\nalgorithm\nAlgorith Rsum(a,n)\n{\nIf(n<=0)\nreturn 0;\nelse\nreturn a[n]+Rsum(a,n-1 )\n}\nState Master\u2019s theorem.",
+                "occurrence_count": 1
+            }
+        ]
+    },
+    {
+        "topic": "graph",
+        "frequency": 2,
+        "importance_score": 3,
+        "questions": [
+            {
+                "text": "Discuss a method used to represent a graph.",
+                "occurrence_count": 1
+            }
+        ]
+    },
+    {
+        "topic": "General",
+        "frequency": 0,
+        "importance_score": 3,
+        "questions": [
+            {
+                "text": "Define P, NP, NP Hard and NP Complete problems.(b)\n?K@lS\n:i?Wi#\n(C)\n(d)\n(e)\n(f)\n(g)\n(h)bY>iMF;)9L3 1 2\n3\n3\n3\n3\n3\n3LI\nL2\nL2\nLI\nL2\nLl2\n2\n3\n6\n5\n71\nI\n1\n1\n1\n1\nPART B\n(4 x 12 =48)\n11. (a)\n(b)Explain asymptotic notations.",
+                "occurrence_count": 1
+            },
+            {
+                "text": "_ LI 6 3,10 PART B (4 x 12 = 48) II .",
+                "occurrence_count": 1
+            },
+            {
+                "text": "LI 6 3,10 Blooms's Taxonomy Levels LI L2 10%, L3 20%, L4 25%.",
+                "occurrence_count": 1
+            }
+        ]
+    },
+    {
+        "topic": "time",
+        "frequency": 2,
+        "importance_score": 3,
+        "questions": [
+            {
+                "text": "Ll 2 1,3 (b) Estimate worst case, best case and average case complexity of linear 3 L2 1 1,3 search: Give the time complexity analysis of bubble sort.",
+                "occurrence_count": 1
+            }
+        ]
+    },
+    {
+        "topic": "approximation algorithms",
+        "frequency": 2,
+        "importance_score": 3,
+        "questions": [
+            {
+                "text": "(h) What are approximation algorithms?",
+                "occurrence_count": 1
+            }
+        ]
+    },
+    {
+        "topic": "given\nalgorithm",
+        "frequency": 1,
+        "importance_score": 2,
+        "questions": [
+            {
+                "text": "Calculate the space complexity of given\nalgorithm\nAlgorith Rsum(a,n)\n{\nIf(n<=0)\nreturn 0;\nelse\nreturn a[n]+Rsum(a,n-1 )\n}\nState Master\u2019s theorem.",
+                "occurrence_count": 1
+            }
+        ]
+    },
+    {
+        "topic": "else\nreturn",
+        "frequency": 1,
+        "importance_score": 2,
+        "questions": [
+            {
+                "text": "Calculate the space complexity of given\nalgorithm\nAlgorith Rsum(a,n)\n{\nIf(n<=0)\nreturn 0;\nelse\nreturn a[n]+Rsum(a,n-1 )\n}\nState Master\u2019s theorem.",
+                "occurrence_count": 1
+            }
+        ]
+    },
+    {
+        "topic": "method",
+        "frequency": 1,
+        "importance_score": 2,
+        "questions": [
+            {
+                "text": "Discuss a method used to represent a graph.",
+                "occurrence_count": 1
+            }
+        ]
+    },
+    {
+        "topic": "queens",
+        "frequency": 1,
+        "importance_score": 2,
+        "questions": [
+            {
+                "text": "Explain N queens problem.spanning tree of the12\n12\n12\n12L2 3 2\nVII.",
+                "occurrence_count": 1
+            }
+        ]
+    },
+    {
+        "topic": "tree",
+        "frequency": 1,
+        "importance_score": 2,
+        "questions": [
+            {
+                "text": "Explain N queens problem.spanning tree of the12\n12\n12\n12L2 3 2\nVII.",
+                "occurrence_count": 1
+            }
+        ]
+    },
+    {
+        "topic": "two possible strategies",
+        "frequency": 1,
+        "importance_score": 2,
+        "questions": [
+            {
+                "text": "Discuss two possible strategies\nused for travelling salesman problem.",
+                "occurrence_count": 1
+            }
+        ]
+    },
+    {
+        "topic": "salesman problem",
+        "frequency": 1,
+        "importance_score": 2,
+        "questions": [
+            {
+                "text": "Discuss two possible strategies\nused for travelling salesman problem.",
+                "occurrence_count": 1
+            }
+        ]
+    },
+    {
+        "topic": "worst case",
+        "frequency": 1,
+        "importance_score": 2,
+        "questions": [
+            {
+                "text": "Ll 2 1,3 (b) Estimate worst case, best case and average case complexity of linear 3 L2 1 1,3 search: Give the time complexity analysis of bubble sort.",
+                "occurrence_count": 1
+            }
+        ]
+    },
+    {
+        "topic": "best case",
+        "frequency": 1,
+        "importance_score": 2,
+        "questions": [
+            {
+                "text": "Ll 2 1,3 (b) Estimate worst case, best case and average case complexity of linear 3 L2 1 1,3 search: Give the time complexity analysis of bubble sort.",
+                "occurrence_count": 1
+            }
+        ]
+    },
+    {
+        "topic": "average case complexity",
+        "frequency": 1,
+        "importance_score": 2,
+        "questions": [
+            {
+                "text": "Ll 2 1,3 (b) Estimate worst case, best case and average case complexity of linear 3 L2 1 1,3 search: Give the time complexity analysis of bubble sort.",
+                "occurrence_count": 1
+            }
+        ]
+    },
+    {
+        "topic": "complexity analysis",
+        "frequency": 1,
+        "importance_score": 2,
+        "questions": [
+            {
+                "text": "Ll 2 1,3 (b) Estimate worst case, best case and average case complexity of linear 3 L2 1 1,3 search: Give the time complexity analysis of bubble sort.",
+                "occurrence_count": 1
+            }
+        ]
+    },
+    {
+        "topic": "bubble sort",
+        "frequency": 1,
+        "importance_score": 2,
+        "questions": [
+            {
+                "text": "Ll 2 1,3 (b) Estimate worst case, best case and average case complexity of linear 3 L2 1 1,3 search: Give the time complexity analysis of bubble sort.",
+                "occurrence_count": 1
+            }
+        ]
+    },
+    {
+        "topic": "avl tree",
+        "frequency": 1,
+        "importance_score": 2,
+        "questions": [
+            {
+                "text": "LI 1,3 { Differentiate between AVL tree and Red Black Tree.",
+                "occurrence_count": 1
+            }
+        ]
+    },
+    {
+        "topic": "red black tree",
+        "frequency": 1,
+        "importance_score": 2,
+        "questions": [
+            {
+                "text": "LI 1,3 { Differentiate between AVL tree and Red Black Tree.",
+                "occurrence_count": 1
+            }
+        ]
+    },
+    {
+        "topic": "properties",
+        "frequency": 1,
+        "importance_score": 2,
+        "questions": [
+            {
+                "text": "1,3 Discuss the properties of RBT: 3 #J 1,3 Discuss about different graph algorithms.",
+                "occurrence_count": 1
+            }
+        ]
+    },
+    {
+        "topic": "rbt",
+        "frequency": 1,
+        "importance_score": 2,
+        "questions": [
+            {
+                "text": "1,3 Discuss the properties of RBT: 3 #J 1,3 Discuss about different graph algorithms.",
+                "occurrence_count": 1
+            }
+        ]
+    },
+    {
+        "topic": "different graph algorithms",
+        "frequency": 1,
+        "importance_score": 2,
+        "questions": [
+            {
+                "text": "1,3 Discuss the properties of RBT: 3 #J 1,3 Discuss about different graph algorithms.",
+                "occurrence_count": 1
+            }
+        ]
+    },
+    {
+        "topic": "short notes",
+        "frequency": 1,
+        "importance_score": 2,
+        "questions": [
+            {
+                "text": "3 (g) Write short notes on the P, NP, NP hard and NP complete complexity 3 4,5 classes.",
+                "occurrence_count": 1
+            }
+        ]
+    },
+    {
+        "topic": "queens problem",
+        "frequency": 1,
+        "importance_score": 2,
+        "questions": [
+            {
+                "text": "Explain N queens problem with its analysis.",
+                "occurrence_count": 1
+            }
+        ]
+    },
+    {
+        "topic": "its analysis",
+        "frequency": 1,
+        "importance_score": 2,
+        "questions": [
+            {
+                "text": "Explain N queens problem with its analysis.",
+                "occurrence_count": 1
+            }
+        ]
+    },
+    {
+        "topic": "vil",
+        "frequency": 1,
+        "importance_score": 2,
+        "questions": [
+            {
+                "text": "LI 5 3 OR VIL Given a chain of four matrices.",
+                "occurrence_count": 1
+            }
+        ]
+    },
+    {
+        "topic": "chain",
+        "frequency": 1,
+        "importance_score": 2,
+        "questions": [
+            {
+                "text": "LI 5 3 OR VIL Given a chain of four matrices.",
+                "occurrence_count": 1
+            }
+        ]
+    },
+    {
+        "topic": "four matrices",
+        "frequency": 1,
+        "importance_score": 2,
+        "questions": [
+            {
+                "text": "LI 5 3 OR VIL Given a chain of four matrices.",
+                "occurrence_count": 1
+            }
+        ]
+    },
+    {
+        "topic": "approximation   algorithm",
+        "frequency": 1,
+        "importance_score": 2,
+        "questions": [
+            {
+                "text": "Discuss the   approximation   algorithm for TSP in detail with an 12 LI 6 3,10 example.",
+                "occurrence_count": 1
+            }
+        ]
+    },
+    {
+        "topic": "tsp",
+        "frequency": 1,
+        "importance_score": 2,
+        "questions": [
+            {
+                "text": "Discuss the   approximation   algorithm for TSP in detail with an 12 LI 6 3,10 example.",
+                "occurrence_count": 1
+            }
+        ]
+    },
+    {
+        "topic": "detail",
+        "frequency": 1,
+        "importance_score": 2,
+        "questions": [
+            {
+                "text": "Discuss the   approximation   algorithm for TSP in detail with an 12 LI 6 3,10 example.",
+                "occurrence_count": 1
+            }
+        ]
+    }
+]

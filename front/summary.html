@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Analysis Summary - StudySmart</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+
+<style>
+    h1, h2, h3, h4, h5, .navbar-brand { font-family: 'Playfair Display', serif; }
+    body { font-family: 'DM Sans', sans-serif; }
+    .btn  { border-radius: 50px !important; }
+    .card { border-radius: 1.25rem !important; }
+
+    .toggle-thumb {
+        width: 14px; height: 14px;
+        border-radius: 50%;
+        transition: transform 0.3s ease;
+    }
+    [data-bs-theme="dark"] .toggle-thumb { transform: translateX(14px); }
+
+    .action-card { transition: transform 0.2s ease, box-shadow 0.2s ease; }
+    .action-card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 12px 28px rgba(0,0,0,0.12) !important;
+    }
+
+    /* Pomodoro widget */
+    #pomodoroWidget {
+        display: none;
+        position: fixed;
+        z-index: 1055;
+        width: 240px;
+        filter: drop-shadow(0 8px 28px rgba(0,0,0,0.3));
+        cursor: grab;
+        user-select: none;
+    }
+    #pomodoroWidget.active { display: block; }
+    #pomodoroWidget:active { cursor: grabbing; }
+
+    #pomodoroCard {
+        border-radius: 1.5rem !important;
+        padding: 1.4rem 1.3rem 1.2rem;
+        text-align: center;
+        position: relative;
+        transition: background-color 0.8s ease, color 0.8s ease;
+    }
+    #pomodoroCard.mode-work  { background: #1c1c1e; color: #f5f3ee; }
+    #pomodoroCard.mode-break { background: #0d2b1f; color: #c8f0d8; }
+
+    .pomo-close {
+        position: absolute;
+        top: 12px; right: 14px;
+        width: 26px; height: 26px;
+        border-radius: 50% !important;
+        border: none;
+        font-size: 0.75rem;
+        cursor: pointer;
+        display: flex; align-items: center; justify-content: center;
+        background: rgba(255,255,255,0.12);
+        color: inherit;
+        transition: background 0.2s;
+    }
+    .pomo-close:hover { background: rgba(255,255,255,0.25); }
+
+    .pomo-phase {
+        font-size: 0.6rem;
+        font-weight: 700;
+        letter-spacing: .2em;
+        text-transform: uppercase;
+        opacity: 0.5;
+        margin-bottom: 0.9rem;
+    }
+
+    .pomo-ring-wrap {
+        position: relative;
+        width: 140px; height: 140px;
+        margin: 0 auto 1rem;
+    }
+    .pomo-ring-wrap svg { transform: rotate(-90deg); }
+    .ring-track    { fill: none; stroke-width: 7; }
+    .ring-progress { fill: none; stroke-width: 7; stroke-linecap: round; transition: stroke-dashoffset 1s linear, stroke 0.8s ease; }
+
+    .mode-work  .ring-track    { stroke: rgba(245,243,238,0.12); }
+    .mode-work  .ring-progress { stroke: #f5f3ee; }
+    .mode-break .ring-track    { stroke: rgba(200,240,216,0.12); }
+    .mode-break .ring-progress { stroke: #52c47a; }
+
+    .pomo-time-center {
+        position: absolute; inset: 0;
+        display: flex; flex-direction: column;
+        align-items: center; justify-content: center;
+        gap: 2px;
+    }
+    .pomo-digits {
+        font-family: 'Playfair Display', serif;
+        font-size: 2rem; font-weight: 800;
+        letter-spacing: 3px; line-height: 1;
+    }
+    .pomo-unit {
+        font-size: 0.6rem; font-weight: 500;
+        letter-spacing: .15em; text-transform: uppercase; opacity: 0.45;
+    }
+    .pomo-message {
+        font-size: 0.78rem; font-weight: 300;
+        line-height: 1.5; opacity: 0.75;
+        min-height: 3em; padding: 0 0.3rem;
+    }
+
+    /* Enhanced Summary Readability & Indentation */
+    #summary-content ul {
+        list-style-type: none;
+        padding-left: 0.5rem;
+    }
+    #summary-content li {
+        position: relative;
+        padding-left: 1.75rem;
+        margin-bottom: 1.25rem;
+        line-height: 1.7;
+        text-align: justify;
+    }
+    #summary-content li::before {
+        content: "—";
+        position: absolute;
+        left: 0;
+        color: #0d6efd;
+        font-weight: 900;
+    }
+
+    /* Full Page Loading Overlay */
+    #mainLoadingOverlay {
+        position: fixed;
+        inset: 0;
+        background: var(--bs-body-bg);
+        z-index: 2000;
+        display: none;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+    }
+    #mainLoadingOverlay.active { display: flex; }
+    
+    .loader-spin {
+        width: 50px; height: 50px;
+        border: 4px solid var(--bs-secondary-bg);
+        border-top-color: var(--bs-primary);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin-bottom: 1.5rem;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body class="bg-body">
+
+<!-- FULL PAGE LOADING OVERLAY -->
+<div id="mainLoadingOverlay">
+    <div class="loader-spin"></div>
+    <h2 class="fw-bold mb-2">Generating Study Materials</h2>
+    <p class="text-secondary px-4" style="max-width: 450px;">
+        StudySmart is analyzing your document. This usually takes 10-20 seconds depending on the file size...
+    </p>
+</div>
+
+<script>
+    // IMMEDIATE SCRIPT: Show loader and clear old data before page render
+    (function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const docId = urlParams.get('id');
+        const hasNewUpload = sessionStorage.getItem('studySmart_upload_file');
+        
+        if (docId || hasNewUpload) {
+            document.getElementById('mainLoadingOverlay').classList.add('active');
+            // Clear UI-bound data so old results don't show
+            localStorage.removeItem('prepmate_data');
+        }
+    })();
+
+    function hideLoader() {
+        const loader = document.getElementById('mainLoadingOverlay');
+        if (loader) loader.classList.remove('active');
+    }
+</script>
+
+<!-- NAVBAR -->
+<nav class="navbar border-bottom bg-body shadow-sm sticky-top">
+    <div class="container d-flex justify-content-between align-items-center">
+        <div class="d-flex align-items-center gap-3">
+            <a href="upload.html" class="btn btn-outline-secondary btn-sm px-3">← Back to Upload</a>
+            <a class="navbar-brand fw-bold fs-4 mb-0" href="#">StudySmart</a>
+        </div>
+        <div class="d-flex gap-2 align-items-center">
+        <button id="themeToggle" class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-2 px-3 py-2">
+            <span id="themeIcon">🌙</span>
+            <div class="d-flex align-items-center bg-secondary-subtle rounded-pill px-1" style="width:34px;height:20px;">
+                <div class="toggle-thumb bg-secondary"></div>
+            </div>
+            <span id="themeLabel">Dark</span>
+        </button>
+        <button id="logoutBtn" class="btn btn-sm btn-danger px-3">Logout</button>
+        </div>
+    </div>
+</nav>
+
+<div class="container py-5">
+
+    <div class="text-center mb-5">
+        <h1 class="fw-bold">Analysis Summary</h1>
+        <p class="text-secondary mt-2">Here is a structured summary based on your uploaded materials.</p>
+    </div>
+
+    <div class="card border-0 shadow-sm p-4 p-md-5 mb-5">
+        <h4 class="fw-bold mb-3">Extractive Summary</h4>
+        <div id="summary-content" class="text-secondary">The key sentences from the document will appear here.</div>
+    </div>
+
+    <div class="card border-0 shadow-sm p-4 p-md-5 mb-5">
+        <h4 class="fw-bold mb-3">Important Keywords</h4>
+        <div id="keywords-content" class="text-secondary">The most important terms will appear here.</div>
+    </div>
+
+    <div class="card border-0 shadow-sm p-4 p-md-5 mb-5">
+        <h4 class="fw-bold mb-3">
+            <span class="d-inline-block me-2" style="transform: translateY(-2px);">✨</span>
+            AI Refined Student Notes
+        </h4>
+        <div id="refined-notes-content" class="text-secondary">AI-generated notes will appear here. If this is empty, make sure Ollama is running.</div>
+    </div>
+
+    <div class="text-center mb-4">
+        <h4 class="fw-bold">What would you like to do next?</h4>
+        <p class="text-secondary small mt-1">Choose a study mode to continue</p>
+    </div>
+
+    <div class="row g-3 justify-content-center mb-5">
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm text-center p-4 action-card h-100">
+                <div class="fs-2 mb-3">🃏</div>
+                <h5 class="fw-bold mb-2">Flashcards</h5>
+                <p class="text-secondary small">Revise key concepts using interactive flashcards.</p>
+                <a href="flash.html" class="btn btn-outline-dark mt-auto">Start Flashcards</a>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm text-center p-4 action-card h-100">
+                <div class="fs-2 mb-3">⚡</div>
+                <h5 class="fw-bold mb-2">Quiz</h5>
+                <p class="text-secondary small">Take a timed quiz based on important topics.</p>
+                <a href="quiz.html" class="btn btn-outline-dark mt-auto">Start Quiz</a>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm text-center p-4 action-card h-100">
+                <div class="fs-2 mb-3">🍅</div>
+                <h5 class="fw-bold mb-2">Pomodoro Timer</h5>
+                <p class="text-secondary small">Begin a focused 25-minute study session.</p>
+                <button class="btn btn-dark mt-auto" onclick="startPomodoro()">Start Timer</button>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- POMODORO WIDGET -->
+<div id="pomodoroWidget">
+    <div id="pomodoroCard" class="mode-work shadow-lg">
+        <button class="pomo-close" id="pomoClose" title="Stop timer">✕</button>
+        <div class="pomo-phase" id="pomoPhase">Focus Session · #1</div>
+        <div class="pomo-ring-wrap">
+            <svg width="140" height="140" viewBox="0 0 190 190">
+                <circle class="ring-track"    cx="95" cy="95" r="82"/>
+                <circle class="ring-progress" cx="95" cy="95" r="82"
+                        id="ringProgress"
+                        stroke-dasharray="515.2"
+                        stroke-dashoffset="0"/>
+            </svg>
+            <div class="pomo-time-center">
+                <div class="pomo-digits" id="pomoDigits">25:00</div>
+                <div class="pomo-unit"   id="pomoUnit">minutes left</div>
+            </div>
+        </div>
+        <div class="pomo-message" id="pomoMessage">Lock in. Close distractions and give this your full attention. You've got this. 🎯</div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<!-- LOAD CLI GENERATED DATA (If running via main.py) -->
+<script>
+    document.write('<script src="summary_data.js?v=' + Date.now() + '"><\/script>');
+</script>
+<script>
+// ── AUTH CHECK ──
+let user = JSON.parse(localStorage.getItem('prepmate_user'));
+// Only enforce login if running on a web server (http/https). Allows file:// to work for local testing.
+if (window.location.protocol.startsWith('http') && (!user || !user.id)) {
+    window.location.href = 'home.html#login';
+}
+// If in file mode, mock a user so scripts don't break
+if (window.location.protocol === 'file:') user = { id: 1, firstName: 'Test User' };
+
+// ── LOGOUT ──
+document.getElementById('logoutBtn').addEventListener('click', () => {
+    localStorage.removeItem('prepmate_user');
+    window.location.href = 'home.html#login';
+});
+
+
+// ── THEME ──
+const html = document.documentElement;
+applyTheme(localStorage.getItem('prepmate-theme') || 'light');
+document.getElementById('themeToggle').addEventListener('click', () => {
+    applyTheme(html.getAttribute('data-bs-theme') === 'light' ? 'dark' : 'light');
+});
+function applyTheme(t) {
+    html.setAttribute('data-bs-theme', t);
+    localStorage.setItem('prepmate-theme', t);
+    document.getElementById('themeIcon').textContent  = t === 'dark' ? '☀️' : '🌙';
+    document.getElementById('themeLabel').textContent = t === 'dark' ? 'Light' : 'Dark';
+}
+
+// ── POPULATE CONTENT ──
+
+// Helper function to convert Data URL to a Blob
+function dataURLtoBlob(dataurl) {
+    const arr = dataurl.split(',');
+    const mime = arr[0].match(/:(.*?);/)[1];
+    const bstr = atob(arr[1]);
+    let n = bstr.length;
+    const u8arr = new Uint8Array(n);
+    while (n--) {
+        u8arr[n] = bstr.charCodeAt(n);
+    }
+    return new Blob([u8arr], { type: mime });
+}
+
+function formatRefinedSummary(text) {
+    if (!text) return '';
+    // Convert markdown-like bullet points and bolding to HTML
+    let html = text
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') // Bold
+        .replace(/(\r\n|\r|\n){2,}/g, '\n\n') // Normalize line breaks
+        .trim();
+ 
+    const blocks = html.split('\n\n');
+    const htmlBlocks = blocks.map(block => {
+        if (block.match(/^(\*|-)\s/)) {
+            const items = block.split('\n').map(item => `<li>${item.replace(/^(\*|-)\s/, '')}</li>`).join('');
+            return `<ul>${items}</ul>`;
+        }
+        return `<p>${block.replace(/\n/g, '<br>')}</p>`;
+    });
+    return htmlBlocks.join('');
+}
+
+// Main function to populate content from data object
+function populateContent(data) {
+    const summaryContainer = document.getElementById('summary-content');
+    const keywordsContainer = document.getElementById('keywords-content');
+    const refinedContainer = document.getElementById('refined-notes-content');
+
+    // Clear loading/placeholder states
+    summaryContainer.classList.remove('text-secondary');
+    keywordsContainer.classList.remove('text-secondary');
+    refinedContainer.classList.remove('text-secondary');
+
+    if (data) {
+        // Summary
+        if (data.summary && data.summary.length > 0) {
+            const sentences = Array.isArray(data.summary) ? data.summary : [data.summary];
+            const summaryHtml = `
+                <ul class="mb-0">
+                    ${sentences.map(s => `<li>${s.trim()}</li>`).join('')}
+                </ul>
+            `;
+            summaryContainer.innerHTML = summaryHtml;
+        } else {
+            summaryContainer.innerHTML = '<p>Could not generate a summary from the document.</p>';
+        }
+
+        // Keywords
+        if (data.keywords && data.keywords.length > 0) {
+            keywordsContainer.innerHTML = data.keywords.map(kw => `<span class="badge bg-primary-subtle text-primary-emphasis rounded-pill fs-6 fw-normal p-2 me-2 mb-2">${kw}</span>`).join('');
+        } else {
+            keywordsContainer.innerHTML = '<p>No keywords were extracted.</p>';
+        }
+
+        // Refined Notes
+        if (data.refined_summary) {
+            refinedContainer.innerHTML = formatRefinedSummary(data.refined_summary);
+        } else {
+            refinedContainer.innerHTML = '<p>AI-refined notes could not be generated. Make sure the Ollama server is running and accessible.</p>';
+        }
+    } else {
+        // Case where no data is found at all
+        summaryContainer.innerHTML = '<div class="alert alert-warning"><strong>No Data Found.</strong><br>1. If running manually, check if <code>summary_data.js</code> exists in the front folder.<br>2. If using the web app, try uploading again.<br>3. Check the Python console for errors.</div>';
+        keywordsContainer.innerHTML = '';
+        refinedContainer.innerHTML = '';
+    }
+}
+
+// Show a loading state across all content cards
+function showLoadingState() {
+    const summaryContainer = document.getElementById('summary-content');
+    const keywordsContainer = document.getElementById('keywords-content');
+    const refinedContainer = document.getElementById('refined-notes-content');
+    const loadingHTML = `<div class="d-flex align-items-center text-secondary">
+        <strong role="status">Generating...</strong>
+        <div class="spinner-border ms-auto" style="width: 1.5rem; height: 1.5rem;" aria-hidden="true"></div>
+    </div>`;
+    summaryContainer.innerHTML = loadingHTML;
+    keywordsContainer.innerHTML = loadingHTML;
+    refinedContainer.innerHTML = loadingHTML;
+}
+
+document.addEventListener('DOMContentLoaded', async () => {
+    // --- START DEBUGGING ---
+    console.log("Page loaded. Checking for file to process in sessionStorage...");
+    // --- END DEBUGGING ---
+    
+    const urlParams = new URLSearchParams(window.location.search);
+    const docId = urlParams.get('id');
+    const fileUploadData = sessionStorage.getItem('prepmate_upload_file');
+
+    // CASE 0: URL has an ID (e.g. summary.html?id=1). Fetch from DB.
+    if (docId) {
+        console.log(`Found Document ID ${docId} in URL. Fetching from server...`);
+        showLoadingState();
+        try {
+            const res = await fetch(`http://127.0.0.1:5000/summary/${docId}`);
+            if (!res.ok) throw new Error("Document not found in database.");
+            const data = await res.json();
+            populateContent(data);
+            hideLoader();
+        } catch (err) {
+            document.getElementById('summary-content').innerHTML = `<div class="alert alert-danger">${err.message}</div>`;
+        }
+    }
+    // CASE 1: A file was just uploaded and needs to be processed.
+    else if (fileUploadData) {
+        // A file was just uploaded, we need to process it.
+        // First, ensure the user is properly authenticated.
+        // --- START DEBUGGING ---
+        console.log("Found file data in sessionStorage. Proceeding to process.");
+        // --- END DEBUGGING ---
+        if (!user || !user.id) {
+            const summaryContainer = document.getElementById('summary-content');
+            summaryContainer.innerHTML = `<div class="alert alert-danger"><strong>Authentication Error:</strong> User session is invalid. Please <a href="home.html#login" class="alert-link">log in</a> again before uploading.</div>`;
+            document.getElementById('keywords-content').innerHTML = '';
+            document.getElementById('refined-notes-content').innerHTML = '';
+            sessionStorage.removeItem('prepmate_upload_file'); // Clear the invalid request
+            return; // Stop processing
+        }
+
+        // --- START DEBUGGING ---
+        console.log("User is authenticated. Showing loading state and starting upload to server.");
+        // --- END DEBUGGING ---
+        showLoadingState();
+        sessionStorage.removeItem('prepmate_upload_file'); // Process only once
+
+        try {
+            const fileData = JSON.parse(fileUploadData);
+            const fileBlob = dataURLtoBlob(fileData.data);
+
+            const formData = new FormData();
+            formData.append('file', fileBlob, fileData.name);
+            formData.append('user_id', user.id);
+
+            const response = await fetch('http://127.0.0.1:5000/process-document', {
+                method: 'POST',
+                body: formData,
+            });
+
+            if (!response.ok) {
+                // Try to parse the error message from JSON, but have a fallback.
+                const errorData = await response.json().catch(() => ({ error: "Server returned an invalid error response." }));
+                throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+            }
+
+            const data = await response.json();
+
+            // --- DEBUGGING: Log the data received from the server ---
+            console.log("Data received from server:", data);
+
+            // Explicitly check if the server returned a successful but empty response.
+            if (!data || Object.keys(data).length === 0) {
+                throw new Error("Server processed the file but returned no data. Check the Flask server console for potential NLP errors.");
+            }
+            
+            localStorage.setItem('prepmate_data', JSON.stringify(data));
+            populateContent(data);
+        } catch (error) {
+            const summaryContainer = document.getElementById('summary-content');
+            summaryContainer.innerHTML = `<div class="alert alert-danger"><strong>Error during processing:</strong> ${error.message}. Please try uploading the file again.</div>`;
+            document.getElementById('keywords-content').innerHTML = '';
+            document.getElementById('refined-notes-content').innerHTML = '';
+        }
+    // CASE 2: No upload in progress. Display data from the last session.
+    } else {
+        let data = null;
+        // --- START DEBUGGING ---
+        console.log("No file data found in sessionStorage. Displaying data from previous session (localStorage).");
+        // --- END DEBUGGING ---
+
+        // CHECK 1: Is there data in localStorage? (Prefer current session data)
+        const localData = localStorage.getItem('prepmate_data');
+        if (localData) {
+            try {
+                data = JSON.parse(localData);
+            } catch (e) {
+                console.error('Could not parse localStorage data.', e);
+            }
+        }
+
+        // CHECK 2: Fallback to static JS file (CLI/Offline execution)
+        if (!data && typeof generatedSummaryData !== 'undefined' && generatedSummaryData) {
+            console.log("Found generatedSummaryData from static file.");
+            data = generatedSummaryData;
+        }
+        populateContent(data);
+    }
+});
+
+// ── POMODORO ──
+const WORK_SECS      = 25 * 60;
+const BREAK_SECS     =  5 * 60;
+const CIRCUMFERENCE  = 515.2;
+
+const WORK_MESSAGES = [
+    "Lock in. Close distractions and give this your full attention. You've got this. 🎯",
+    "Eyes on the material. Every minute counts — stay sharp and keep going. 📖",
+    "Deep focus mode. The more present you are now, the easier it gets later. 🧠",
+    "You're doing great. Stay with it — 25 minutes of focus changes everything. ✨"
+];
+const BREAK_MESSAGES = [
+    "Time to breathe. Step away, stretch, grab some water — you've earned it. ☕",
+    "Rest is part of the process. Let your mind wander freely for 5 minutes. 🌿",
+    "Well done! Relax your eyes, take a slow walk, or just do nothing. 🛋️",
+    "Recharge time. Your brain is consolidating what you just studied. Enjoy the pause. 🌤️"
+];
+
+let timerInterval = null;
+let secondsLeft   = WORK_SECS;
+let totalSecs     = WORK_SECS;
+let isWork        = true;
+let sessionCount  = 0;
+
+const widget = document.getElementById('pomodoroWidget');
+
+function startPomodoro() {
+    secondsLeft  = WORK_SECS;
+    totalSecs    = WORK_SECS;
+    isWork       = true;
+    sessionCount = 0;
+    setMode('work');
+    updateDisplay();
+
+    // Place bottom-right
+    widget.style.left   = (window.innerWidth  - 240 - 28) + 'px';
+    widget.style.top    = (window.innerHeight - widget.offsetHeight - 28) + 'px';
+    widget.classList.add('active');
+
+    // Re-measure after visible and reposition vertically
+    requestAnimationFrame(() => {
+        widget.style.top = (window.innerHeight - widget.offsetHeight - 28) + 'px';
+    });
+
+    clearInterval(timerInterval);
+    timerInterval = setInterval(tick, 1000);
+}
+
+function tick() {
+    if (secondsLeft > 0) {
+        secondsLeft--;
+        updateDisplay();
+    } else {
+        if (isWork) {
+            sessionCount++;
+            isWork      = false;
+            secondsLeft = BREAK_SECS;
+            totalSecs   = BREAK_SECS;
+            setMode('break');
+        } else {
+            isWork      = true;
+            secondsLeft = WORK_SECS;
+            totalSecs   = WORK_SECS;
+            setMode('work');
+        }
+        updateDisplay();
+    }
+}
+
+function setMode(mode) {
+    const card = document.getElementById('pomodoroCard');
+    const idx  = sessionCount % 4;
+    if (mode === 'work') {
+        card.className = 'mode-work shadow-lg';
+        document.getElementById('pomoPhase').textContent   = 'Focus Session · #' + (sessionCount + 1);
+        document.getElementById('pomoUnit').textContent    = 'minutes left';
+        document.getElementById('pomoMessage').textContent = WORK_MESSAGES[idx];
+    } else {
+        card.className = 'mode-break shadow-lg';
+        document.getElementById('pomoPhase').textContent   = 'Break Time';
+        document.getElementById('pomoUnit').textContent    = 'minutes to rest';
+        document.getElementById('pomoMessage').textContent = BREAK_MESSAGES[idx];
+    }
+}
+
+function updateDisplay() {
+    const m = String(Math.floor(secondsLeft / 60)).padStart(2, '0');
+    const s = String(secondsLeft % 60).padStart(2, '0');
+    document.getElementById('pomoDigits').textContent = m + ':' + s;
+    const offset = CIRCUMFERENCE * (1 - secondsLeft / totalSecs);
+    document.getElementById('ringProgress').style.strokeDashoffset = offset;
+}
+
+document.getElementById('pomoClose').addEventListener('click', function() {
+    clearInterval(timerInterval);
+    timerInterval = null;
+    widget.classList.remove('active');
+    secondsLeft  = WORK_SECS;
+    totalSecs    = WORK_SECS;
+    isWork       = true;
+    sessionCount = 0;
+    document.getElementById('pomodoroCard').className   = 'mode-work shadow-lg';
+    document.getElementById('pomoPhase').textContent    = 'Focus Session · #1';
+    document.getElementById('pomoDigits').textContent   = '25:00';
+    document.getElementById('pomoUnit').textContent     = 'minutes left';
+    document.getElementById('pomoMessage').textContent  = WORK_MESSAGES[0];
+    document.getElementById('ringProgress').style.strokeDashoffset = 0;
+});
+
+// ── DRAG ──
+let dragging = false, dragOX = 0, dragOY = 0;
+
+widget.addEventListener('mousedown', function(e) {
+    if (e.target === document.getElementById('pomoClose') || e.target.closest('#pomoClose')) return;
+    dragging = true;
+    dragOX = e.clientX - widget.getBoundingClientRect().left;
+    dragOY = e.clientY - widget.getBoundingClientRect().top;
+    widget.style.cursor = 'grabbing';
+    e.preventDefault();
+});
+
+document.addEventListener('mousemove', function(e) {
+    if (!dragging) return;
+    let x = e.clientX - dragOX;
+    let y = e.clientY - dragOY;
+    x = Math.max(0, Math.min(window.innerWidth  - widget.offsetWidth,  x));
+    y = Math.max(0, Math.min(window.innerHeight - widget.offsetHeight, y));
+    widget.style.left = x + 'px';
+    widget.style.top  = y + 'px';
+});
+
+document.addEventListener('mouseup', function() {
+    if (!dragging) return;
+    dragging = false;
+    widget.style.cursor = 'grab';
+});
+</script>
+
+</body>
+</html>

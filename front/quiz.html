@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz - StudySmart</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+
+<style>
+    h1, h2, h3, h4, h5, .navbar-brand { font-family: 'Playfair Display', serif; font-weight: 700; }
+    body { font-family: 'DM Sans', sans-serif; line-height: 1.6; }
+    .btn { border-radius: 50px !important; }
+    .card { border-radius: 1.25rem !important; }
+    .option-card {
+        cursor: pointer;
+        transition: all 0.2s;
+        border: 2px solid var(--bs-border-color);
+        font-weight: 500;
+    }
+    .option-card:hover { border-color: var(--bs-primary); transform: translateX(5px); }
+    .option-card.selected { border-color: var(--bs-primary); background-color: var(--bs-primary-bg-subtle); box-shadow: 0 4px 12px rgba(13, 110, 253, 0.1); }
+    .option-card.correct { border-color: #198754; background-color: #d1e7dd; color: #0f5132; font-weight: 600; }
+    .option-card.wrong { border-color: #dc3545; background-color: #f8d7da; color: #842029; }
+
+    #questionText {
+        font-size: 1.25rem;
+        color: var(--bs-heading-color);
+        margin-bottom: 1.5rem;
+    }
+</style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar border-bottom bg-body shadow-sm sticky-top">
+    <div class="container d-flex justify-content-between align-items-center">
+        <div class="d-flex align-items-center gap-3">
+            <a href="summary.html" class="btn btn-outline-secondary btn-sm px-3" title="Back to Summary">← Summary</a>
+            <a href="upload.html" class="btn btn-outline-primary btn-sm px-3">Back to Upload</a>
+            <a class="navbar-brand fw-bold fs-4 mb-0" href="#">PrepMate</a>
+        </div>
+        <button id="themeToggle" class="btn btn-outline-secondary btn-sm px-3">Theme</button>
+    </div>
+</nav>
+
+<div class="container py-5">
+    <div class="text-center mb-5">
+        <h1 class="fw-bold">Knowledge Check</h1>
+        <p class="text-secondary" id="progressText">Question 1 of ?</p>
+        <div class="progress" style="height: 6px; max-width: 600px; margin: 0 auto;">
+            <div class="progress-bar bg-dark" id="progressBar" style="width: 0%"></div>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <!-- QUESTION CARD -->
+            <div class="card border-0 shadow-sm p-4">
+                <div class="card-body">
+                    <span class="badge bg-secondary mb-3" id="qTypeBadge">MCQ</span>
+                    <h4 class="mb-4" id="questionText">Loading...</h4>
+                    
+                    <!-- OPTIONS CONTAINER -->
+                    <div id="optionsContainer" class="d-flex flex-column gap-3"></div>
+
+                    <!-- FEEDBACK -->
+                    <div id="feedback" class="mt-4 alert d-none"></div>
+                </div>
+            </div>
+
+            <!-- CONTROLS -->
+            <div class="d-flex justify-content-end mt-4 gap-2">
+                <button class="btn btn-primary px-4" id="submitBtn">Submit Answer</button>
+                <button class="btn btn-dark px-4 d-none" id="nextBtn">Next Question</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="quiz_data.js"></script>
+<script>
+// ── 0. HELPERS ──
+function formatText(text) {
+    if (!text) return '';
+    return text
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\n/g, '<br>')
+        .trim();
+}
+
+// ── 1. LOAD DATA ──
+let questions = [];
+if (typeof generatedQuizData !== 'undefined') {
+    // Combine all types into one list and shuffle
+    questions = [
+        ...generatedQuizData.fill_in_the_blank,
+        ...generatedQuizData.true_false,
+        ...generatedQuizData.mcq,
+        ...generatedQuizData.msq
+    ].sort(() => Math.random() - 0.5);
+} else {
+    document.getElementById('questionText').innerText = "No quiz data found. Please regenerate.";
+}
+
+let currentIdx = 0;
+let score = 0;
+let selectedOptions = []; // Stores user selection(s)
+
+const els = {
+    questionText: document.getElementById('questionText'),
+    optionsContainer: document.getElementById('optionsContainer'),
+    badge: document.getElementById('qTypeBadge'),
+    progressText: document.getElementById('progressText'),
+    progressBar: document.getElementById('progressBar'),
+    submitBtn: document.getElementById('submitBtn'),
+    nextBtn: document.getElementById('nextBtn'),
+    feedback: document.getElementById('feedback')
+};
+
+function loadQuestion(index) {
+    if (index >= questions.length) {
+        showResults();
+        return;
+    }
+
+    const q = questions[index];
+    currentIdx = index;
+    selectedOptions = []; // Reset selection
+
+    // Update UI
+    els.progressText.innerText = `Question ${index + 1} of ${questions.length}`;
+    els.progressBar.style.width = `${((index) / questions.length) * 100}%`;
+    els.questionText.innerHTML = formatText(q.question_text);
+    els.badge.innerText = q.type.replace('_', ' ');
+    els.optionsContainer.innerHTML = '';
+    els.feedback.className = 'mt-4 alert d-none';
+    els.submitBtn.classList.remove('d-none');
+    els.nextBtn.classList.add('d-none');
+    els.submitBtn.disabled = false;
+
+    // Render Options
+    if (q.type === 'TF') {
+        createOption('True', 'True', false);
+        createOption('False', 'False', false);
+    } else {
+        // FIB, MCQ, MSQ have options arrays
+        q.options.forEach(opt => {
+            createOption(opt, opt, q.type === 'MSQ');
+        });
+    }
+}
+
+function createOption(label, value, isMulti) {
+    const div = document.createElement('div');
+    div.className = 'card option-card p-3 rounded-3';
+    div.innerText = label;
+    div.onclick = () => {
+        if (els.submitBtn.classList.contains('d-none')) return; // Prevent change after submit
+
+        if (isMulti) {
+            // Toggle selection for MSQ
+            if (selectedOptions.includes(value)) {
+                selectedOptions = selectedOptions.filter(v => v !== value);
+                div.classList.remove('selected');
+            } else {
+                selectedOptions.push(value);
+                div.classList.add('selected');
+            }
+        } else {
+            // Single selection for others
+            selectedOptions = [value];
+            // clear other highlights
+            Array.from(els.optionsContainer.children).forEach(c => c.classList.remove('selected'));
+            div.classList.add('selected');
+        }
+    };
+    els.optionsContainer.appendChild(div);
+}
+
+els.submitBtn.onclick = () => {
+    if (selectedOptions.length === 0) return;
+    
+    const q = questions[currentIdx];
+    let isCorrect = false;
+    let correctAns = q.answer;
+
+    // Normalize answers for comparison
+    if (q.type === 'TF') correctAns = String(q.answer); // "true"/"false" vs true/false
+
+    if (Array.isArray(correctAns)) {
+        // MSQ Logic: Arrays must match (ignoring order)
+        isCorrect = selectedOptions.length === correctAns.length && 
+                    selectedOptions.every(val => correctAns.includes(val));
+    } else {
+        // Single Answer Logic
+        isCorrect = String(selectedOptions[0]).toLowerCase() === String(correctAns).toLowerCase();
+    }
+
+    if (isCorrect) score++;
+
+    // Show Feedback
+    els.feedback.classList.remove('d-none');
+    if (isCorrect) {
+        els.feedback.classList.add('alert-success');
+        els.feedback.innerText = "✅ Correct!";
+    } else {
+        els.feedback.classList.add('alert-danger');
+        els.feedback.innerText = `❌ Incorrect. Correct answer: ${Array.isArray(correctAns) ? correctAns.join(', ') : correctAns}`;
+    }
+
+    // Highlight visual cues
+    Array.from(els.optionsContainer.children).forEach(div => {
+        const val = div.innerText;
+        // Mark chosen
+        if (div.classList.contains('selected')) {
+            div.classList.remove('selected');
+            div.classList.add(isCorrect ? 'correct' : 'wrong');
+        }
+        // Highlight correct one if missed
+        if (!isCorrect) {
+            const isAns = Array.isArray(correctAns) ? correctAns.includes(val) : String(val).toLowerCase() === String(correctAns).toLowerCase();
+            if (isAns) div.classList.add('correct');
+        }
+    });
+
+    els.submitBtn.classList.add('d-none');
+    els.nextBtn.classList.remove('d-none');
+};
+
+els.nextBtn.onclick = () => {
+    loadQuestion(currentIdx + 1);
+};
+
+function showResults() {
+    document.querySelector('.card-body').innerHTML = `
+        <div class="text-center py-5">
+            <h3>Quiz Completed!</h3>
+            <h1 class="display-4 fw-bold my-4">${score} / ${questions.length}</h1>
+            <p class="text-muted">Great job studying!</p>
+            <button onclick="location.reload()" class="btn btn-outline-dark mt-3">Restart Quiz</button>
+        </div>
+    `;
+    els.progressText.innerText = "Complete";
+    els.progressBar.style.width = "100%";
+    els.submitBtn.style.display = 'none';
+    els.nextBtn.style.display = 'none';
+}
+
+// Start
+if(questions.length > 0) loadQuestion(0);
+
+// Theme Toggle (Simple implementation)
+document.getElementById('themeToggle').addEventListener('click', () => {
+    const html = document.documentElement;
+    html.setAttribute('data-bs-theme', html.getAttribute('data-bs-theme') === 'light' ? 'dark' : 'light');
+});
+</script>
+</body>
+</html>
